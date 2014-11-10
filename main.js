@@ -51,6 +51,10 @@ window.onload = function(){
 	
 	game.onload = function(){
 		new Bear();
+		var pad = new Pad();
+		pad.moveTo(0,220);
+		game.rootScene.addChild(pad);
+		
 	//クマの生成
         // var bear = new Sprite(32, 32);
         // bear.image  = game.assets['http://enchantjs.com/assets/images/chara1.gif'];
