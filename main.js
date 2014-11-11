@@ -8,6 +8,32 @@ var gs = {
 	,fps:16
 };
 
+var BackGround = Class.create(Sprite,{
+	initialize:function(){
+		Sprite.call(this,game.width,game.height);
+		this.backgroundColor = 'rgb(0,200,255)';
+		this.image = this.createImage();
+		game.rootScene.addChild(this);
+	},
+	createImage:function(){
+		var maptip = game.assets['http://enchantjs.com/assets/images/map0.gif'];
+		var image = new Surface(game.width,game.height);
+		var size = 16;
+		for(var i = 0; i < game.width; i += 16) {
+			image.draw(maptip, 7 * size, 0, 16, 16, i, game.height - size, size, size);
+		}
+		return image;
+	}
+});
+
+var ePad = Class.create(Pad,{
+	initialize:function(){
+		Pad.call(this);
+		this.moveTo(0,220);
+		game.rootScene.addChild(this);
+	}
+})
+
 var Bear = Class.create(Sprite,{
 	initialize:function(){
 		Sprite.call(this,32,32);
@@ -50,11 +76,37 @@ window.onload = function(){
         'http://enchantjs.com/assets/images/map0.gif');
 	
 	game.onload = function(){
-		new Bear();
-		var pad = new Pad();
-		pad.moveTo(0,220);
-		game.rootScene.addChild(pad);
-		
+		// new BackGround();
+		// new ePad();
+		// new Bear();
+		var map = new Map(16,16);
+		map.image = game.assets['http://enchantjs.com/assets/images/map0.gif'];
+		map.loadData(lines(20,20,7));
+
+function lines(rownum,colnum,value){
+	var rows = [];
+	var empty = -1;
+	for (var i = 0; i < rownum - 1; i++){
+		rows.push(line(colnum,empty));
+	};
+	rows.push(line(colnum,value));
+	return rows;
+
+	function line (colnum,value){
+		var cols = [];
+		for(var i = 0; i < colnum; i++){
+			cols.push(value);
+		};
+		return cols;
+	}
+}
+
+
+		game.rootScene.addChild(map);
+	};
+	game.start();
+};
+
 	//クマの生成
         // var bear = new Sprite(32, 32);
         // bear.image  = game.assets['http://enchantjs.com/assets/images/chara1.gif'];
@@ -79,9 +131,6 @@ window.onload = function(){
     		// })
 
 
-	};
-	game.start();
-};
 
 /*
 var STATUS_WAIT = 0;
