@@ -26,6 +26,32 @@ var BackGround = Class.create(Sprite,{
 	}
 });
 
+var eMap = Class.create(Map,{
+	initialize:function(){
+		Map.call(this,16,16);
+		this.image = game.assets['http://enchantjs.com/assets/images/map0.gif'];
+		this.loadData(this.create(20,20,7));
+		game.rootScene.addChild(this);
+	},
+	create:function(rownum,colnum,value){
+		var rows = [];
+		var empty = -1;
+		for (var i = 0; i < rownum - 1; i++){
+			rows.push(line(colnum,empty));
+		};
+		rows.push(line(colnum,value));
+		return rows;
+
+		function line (colnum,value){
+			var cols = [];
+			for(var i = 0; i < colnum; i++){
+				cols.push(value);
+			};
+			return cols;
+		}
+	}
+});
+
 var ePad = Class.create(Pad,{
 	initialize:function(){
 		Pad.call(this);
@@ -42,25 +68,48 @@ var Bear = Class.create(Sprite,{
     this.y      = (game.height - this.height) - 16;
     this.status = STATUS_WAIT;
     this.anim   = [10, 11, 10, 12];
-    this.frame  = 10;
+    this.frame  = [10];
     game.rootScene.addChild(this);
 
 	},
 	onenterframe:function(){
-		if(game.input.right){
-			this.scaleX = 1;
-			this.x += 5;
-			if(this.x + this.width > game.width){
-				this.x = game.width - this.width;
-			}
-		}
 		if(game.input.left){
+			this.x -= 3;
 			this.scaleX = -1;
-			this.x -= 5;
-			if(this.x < 0){
-				this.x = 0;
+			if(this.status != STATUS_JUMP){
+				this.status = STATUS_WALK;
+			}
+		}else if(game.input.right){
+			this.x += 3;
+			this.scaleX = 1;
+			if(this.status != STATUS_JUMP){
+				this.status = STATUS_WALK;
 			}
 		}
+		if(this.status != STATUS_JUMP){
+			this.status = STATUS_WAIT;
+			if(game.input.up){
+				this.status = STATUS_JUMP;
+				this.age = 0;
+			}
+		}
+		if(this.status === STATUS_JUMP){
+			if(this.age < 8){
+				this.y -= 8;
+			}else if (this.age < 16){
+				this.y += 8;
+			}else {
+				this.status = STATUS_WAIT;
+			}
+		}
+		 //フレームの指定
+            if (this.status === STATUS_WAIT) {
+                this.frame = this.anim[0];            
+            } else if (this.status === STATUS_WALK) {
+                this.frame = this.anim;            
+            } else if (this.status === STATUS_JUMP) {
+                this.frame = this.anim[1];            
+            }
 	}
 });
 
@@ -76,33 +125,11 @@ window.onload = function(){
         'http://enchantjs.com/assets/images/map0.gif');
 	
 	game.onload = function(){
-		// new BackGround();
-		// new ePad();
-		// new Bear();
-		var map = new Map(16,16);
-		map.image = game.assets['http://enchantjs.com/assets/images/map0.gif'];
-		map.loadData(lines(20,20,7));
-
-function lines(rownum,colnum,value){
-	var rows = [];
-	var empty = -1;
-	for (var i = 0; i < rownum - 1; i++){
-		rows.push(line(colnum,empty));
-	};
-	rows.push(line(colnum,value));
-	return rows;
-
-	function line (colnum,value){
-		var cols = [];
-		for(var i = 0; i < colnum; i++){
-			cols.push(value);
-		};
-		return cols;
-	}
-}
+		new eMap();
+		new ePad();
+		new Bear();
 
 
-		game.rootScene.addChild(map);
 	};
 	game.start();
 };
